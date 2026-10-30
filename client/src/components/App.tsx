@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 
 import Header from "./Header/Header";
 import Main from "./Main/Main";
@@ -26,6 +32,7 @@ import type {
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [currentUser, setCurrentUser] = useState<UserData | null>(null);
   const [cards, setCards] = useState<CardData[]>([]);
@@ -41,6 +48,18 @@ function App() {
     message: "",
     redirectToSignin: false,
   });
+
+  const isSignInPage = location.pathname === "/signin";
+
+  const headerProps = isLoggedIn
+    ? {
+        userEmail,
+        onLogout: handleLogout,
+      }
+    : {
+        linkTo: isSignInPage ? "/signup" : "/signin",
+        linkText: isSignInPage ? "Regístrate" : "Inicia sesión",
+      };
 
   // Validar el token guardado al iniciar la aplicación
   useEffect(() => {
@@ -243,9 +262,11 @@ function App() {
         handleAddPlaceSubmit,
       }}
     >
-      <>
+      <div className="page__content">
+        {isTokenChecked && <Header {...headerProps} />}
+
         <Routes>
-          {/* Rutas protegidas: requieren una sesión válida */}
+          {/* Rutas protegidas */}
           <Route
             element={
               <ProtectedRoute
@@ -257,8 +278,7 @@ function App() {
             <Route
               path="/"
               element={
-                <div className="page__content">
-                  <Header userEmail={userEmail} onLogout={handleLogout} />
+                <>
                   <Main
                     cards={cards}
                     handleOpenPopup={handleOpenPopup}
@@ -268,12 +288,12 @@ function App() {
                     handleCardDelete={handleCardDelete}
                   />
                   <Footer />
-                </div>
+                </>
               }
             />
           </Route>
 
-          {/* Rutas públicas: solo para usuarios sin sesión */}
+          {/* Rutas públicas */}
           <Route
             element={
               <PublicRoute
@@ -282,26 +302,15 @@ function App() {
               />
             }
           >
-            <Route
-              path="/signin"
-              element={
-                <div className="page__content">
-                  <Login onLogin={handleLogin} />
-                </div>
-              }
-            />
+            <Route path="/signin" element={<Login onLogin={handleLogin} />} />
 
             <Route
               path="/signup"
-              element={
-                <div className="page__content">
-                  <Register onRegister={handleRegister} />
-                </div>
-              }
+              element={<Register onRegister={handleRegister} />}
             />
           </Route>
 
-          {/* Redirigir rutas desconocidas */}
+          {/* Rutas desconocidas */}
           <Route
             path="*"
             element={
@@ -312,14 +321,13 @@ function App() {
           />
         </Routes>
 
-        {/* Mensaje de registro exitoso o fallido */}
         <InfoTooltip
           isOpen={infoTooltip.isOpen}
           isSuccess={infoTooltip.isSuccess}
           message={infoTooltip.message}
           onClose={handleCloseInfoTooltip}
         />
-      </>
+      </div>
     </CurrentUserContext.Provider>
   );
 }
