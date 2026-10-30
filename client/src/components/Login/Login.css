@@ -1,0 +1,102 @@
+
+.auth {
+  width: 100%;
+  max-width: 358px;
+  margin: 60px auto 0;
+  color: #fff;
+}
+
+.auth__title {
+  margin: 0 0 40px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.auth__form {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.auth__input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 0;
+  border: none;
+  border-bottom: 2px solid #ccc;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  outline: none;
+}
+
+.auth__input::placeholder {
+  color: #ccc;
+}
+
+.auth__input:focus {
+  border-bottom-color: #fff;
+}
+
+.auth__button {
+  min-height: 50px;
+  margin-top: 120px;
+  max-width: 358;
+  border: none;
+  border-radius: 2px;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  cursor: pointer;
+}
+
+.auth__button:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.auth__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.auth__caption {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.auth__caption a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.auth__caption a:hover {
+  opacity: 0.7;
+}
+
+.auth__error {
+  margin: -15px 0 0;
+  color: #ff8080;
+  font-size: 14px;
+}
+
+@media screen and (max-width: 480px) {
+  .auth {
+    max-width: 260px;
+    margin-top: 40px;
+  }
+
+  .auth__title {
+    margin-bottom: 50px;
+    font-size: 20px;
+  }
+}
+
+.auth__input:-webkit-autofill,
+.auth__input:-webkit-autofill:hover,
+.auth__input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #fff;
+  -webkit-box-shadow: 0 0 0 1000px #000 inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
