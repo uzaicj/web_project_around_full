@@ -1,5 +1,5 @@
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
 interface AuthCredentials {
   email: string;
@@ -14,16 +14,19 @@ interface AuthUser {
   avatar: string;
 }
 
-interface RegisterResponse extends AuthUser {}
+type RegisterResponse = AuthUser;
 
 interface LoginResponse {
   token: string;
   user: AuthUser;
 }
 
-interface CheckTokenResponse extends AuthUser {}
+type CheckTokenResponse = AuthUser;
 
-async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
+async function request<T>(
+  url: string,
+  options: RequestInit = {},
+): Promise<T> {
   const response = await fetch(url, {
     ...options,
     headers: {
