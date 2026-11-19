@@ -34,6 +34,12 @@ El proyecto implementa un sistema de autenticación y autorización para protege
 - Gestión de likes en las tarjetas.
 - Persistencia de información mediante MongoDB.
 
+## Despliegues
+
+Frontend: https://web-project-around-full-hno4.vercel.app/signin
+
+Backend: https://web-project-around-full-jade.vercel.app/
+
 ## Estructura del proyecto
 
 web_project_around_full/
