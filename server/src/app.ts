@@ -1,17 +1,36 @@
+import dotenv from 'dotenv';
+dotenv.config();
 
 import express from "express";
 import router from "./routes/index.js";
 import mongoose from "mongoose";
 import { errorHandler } from "./middleware/error-handler.js";
 import cors from "cors";
+import { createUser } from "./controllers/users.js";
+import { login } from "./controllers/login.js";
+import { auth } from "./middleware/auth.js";
+import { loginLimiter, registerLimiter } from "./middleware/limiter.js";
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
-app.use(cors({ origin: "http://localhost:3000" }));
+const MONGO_URI = process.env.MONGO_URI;
+const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN;
+
+if (!MONGO_URI) {
+  throw new Error("MONGO_URI is not defined");
+}
+
+if (!CLIENT_ORIGIN) {
+  throw new Error("CLIENT_ORIGIN is not defined");
+}
+
+app.set('trust proxy', 1);
+
+app.use(cors({ origin: CLIENT_ORIGIN }));
 
 mongoose
-  .connect("mongodb://127.0.0.1:27017/aroundb")
+  .connect(MONGO_URI, { maxPoolSize: 10 })
   .then(() => {
     console.log("Connected to MongoDB");
   })
@@ -22,16 +41,17 @@ mongoose
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Middleware temporal: simula un usuario autenticado
-app.use((req, res, next) => {
-  req.user = {
-    _id: "6ad04f0b0435a3a19307ac1c",
-  };
-
-  next();
+// Ruta de estado
+app.get('/health', (_req, res) => {
+  res.status(200).json({ status: 'ok' });
 });
 
-// Rutas
+// Rutas públicas
+app.post("/signup", registerLimiter, createUser);
+app.post("/signin", loginLimiter, login);
+
+// Rutas protegidas
+app.use(auth);
 app.use(router);
 
 // Recurso no encontrado

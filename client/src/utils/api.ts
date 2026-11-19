@@ -1,5 +1,12 @@
-import type { ApiOptions, UserData, CardData, UserFormData, CardFormData, AvatarFormData } from "../types/types";
 
+import type {
+  ApiOptions,
+  UserData,
+  CardData,
+  UserFormData,
+  CardFormData,
+  AvatarFormData,
+} from "../types/types";
 
 export class Api {
   private _baseUrl: string;
@@ -10,10 +17,20 @@ export class Api {
     this._headers = options.headers;
   }
 
+  // Recupera el token actual y prepara los encabezados
+  private getHeaders() {
+    const token = localStorage.getItem("jwt");
+
+    return {
+      ...this._headers,
+      Authorization: `Bearer ${token}`,
+    };
+  }
+
   async getUserInfo(): Promise<UserData> {
     try {
       const res = await fetch(`${this._baseUrl}/users/me`, {
-        headers: this._headers,
+        headers: this.getHeaders(),
       });
 
       if (res.ok) {
@@ -30,7 +47,7 @@ export class Api {
   async getInitialCards(): Promise<CardData[]> {
     try {
       const res = await fetch(`${this._baseUrl}/cards/`, {
-        headers: this._headers,
+        headers: this.getHeaders(),
       });
 
       if (res.ok) {
@@ -48,7 +65,7 @@ export class Api {
     try {
       const res = await fetch(`${this._baseUrl}/users/me`, {
         method: "PATCH",
-        headers: this._headers,
+        headers: this.getHeaders(),
         body: JSON.stringify(data),
       });
 
@@ -67,7 +84,7 @@ export class Api {
     try {
       const res = await fetch(`${this._baseUrl}/cards/`, {
         method: "POST",
-        headers: this._headers,
+        headers: this.getHeaders(),
         body: JSON.stringify(data),
       });
 
@@ -84,10 +101,13 @@ export class Api {
 
   async likeCard(cardId: string): Promise<CardData> {
     try {
-      const res = await fetch(`${this._baseUrl}/cards/${cardId}/likes`, {
-        method: "PUT",
-        headers: this._headers,
-      });
+      const res = await fetch(
+        `${this._baseUrl}/cards/${cardId}/likes`,
+        {
+          method: "PUT",
+          headers: this.getHeaders(),
+        }
+      );
 
       if (res.ok) {
         return await res.json();
@@ -102,10 +122,13 @@ export class Api {
 
   async unlikeCard(cardId: string): Promise<CardData> {
     try {
-      const res = await fetch(`${this._baseUrl}/cards/${cardId}/likes`, {
-        method: "DELETE",
-        headers: this._headers,
-      });
+      const res = await fetch(
+        `${this._baseUrl}/cards/${cardId}/likes`,
+        {
+          method: "DELETE",
+          headers: this.getHeaders(),
+        }
+      );
 
       if (res.ok) {
         return await res.json();
@@ -122,7 +145,7 @@ export class Api {
     try {
       const res = await fetch(`${this._baseUrl}/cards/${cardId}`, {
         method: "DELETE",
-        headers: this._headers,
+        headers: this.getHeaders(),
       });
 
       if (!res.ok) {
@@ -138,7 +161,7 @@ export class Api {
     try {
       const res = await fetch(`${this._baseUrl}/users/me/avatar`, {
         method: "PATCH",
-        headers: this._headers,
+        headers: this.getHeaders(),
         body: JSON.stringify(data),
       });
 
@@ -154,8 +177,10 @@ export class Api {
   }
 }
 
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
+
 const api = new Api({
-  baseUrl: "http://localhost:3001",
+  baseUrl: API_URL,
   headers: {
     "Content-Type": "application/json",
   },

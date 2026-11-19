@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import {
   Routes,
@@ -40,7 +41,6 @@ function App() {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isTokenChecked, setIsTokenChecked] = useState(false);
-  const [userEmail, setUserEmail] = useState("");
 
   const [infoTooltip, setInfoTooltip] = useState({
     isOpen: false,
@@ -53,7 +53,7 @@ function App() {
 
   const headerProps = isLoggedIn
     ? {
-        userEmail,
+        userEmail: currentUser?.email ?? "",
         onLogout: handleLogout,
       }
     : {
@@ -61,7 +61,7 @@ function App() {
         linkText: isSignInPage ? "Regístrate" : "Inicia sesión",
       };
 
-  // Validar el token guardado al iniciar la aplicación
+  //* Validar el token guardado al iniciar la aplicación
   useEffect(() => {
     const token = localStorage.getItem("jwt");
 
@@ -71,12 +71,14 @@ function App() {
     }
 
     checkToken(token)
-      .then((response) => {
+      .then((userData) => {
+        setCurrentUser(userData);
         setIsLoggedIn(true);
-        setUserEmail(response.data.email);
       })
       .catch((error) => {
         localStorage.removeItem("jwt");
+        setCurrentUser(null);
+        setIsLoggedIn(false);
         console.error(error);
       })
       .finally(() => {
@@ -84,34 +86,29 @@ function App() {
       });
   }, []);
 
-  // Cargar el perfil y las tarjetas cuando el usuario inicia sesión
+  //* Cargar las tarjetas cuando el usuario inicia sesión
   useEffect(() => {
     if (!isLoggedIn) {
       return;
     }
 
-    (async () => {
-      try {
-        const [userData, initialCards] = await Promise.all([
-          api.getUserInfo(),
-          api.getInitialCards(),
-        ]);
-
-        setCurrentUser(userData);
+    api
+      .getInitialCards()
+      .then((initialCards) => {
         setCards(initialCards);
-      } catch (error) {
+      })
+      .catch((error) => {
         console.error(error);
-      }
-    })();
+      });
   }, [isLoggedIn]);
 
-  // Iniciar sesión
+  //* Iniciar sesión
   async function handleLogin(email: string, password: string) {
     try {
       const response = await authorize({ email, password });
 
       localStorage.setItem("jwt", response.token);
-      setUserEmail(email);
+      setCurrentUser(response.user);
       setIsLoggedIn(true);
       navigate("/");
     } catch (error) {
@@ -126,17 +123,16 @@ function App() {
     }
   }
 
-  // Cerrar sesión
+  //* Cerrar sesión
   function handleLogout() {
     localStorage.removeItem("jwt");
     setIsLoggedIn(false);
-    setUserEmail("");
     setCurrentUser(null);
     setCards([]);
     navigate("/signin");
   }
 
-  // Registrar una cuenta
+  //* Registrar una cuenta
   async function handleRegister(email: string, password: string) {
     try {
       await registerUser({ email, password });
@@ -159,7 +155,7 @@ function App() {
     }
   }
 
-  // Cerrar InfoTooltip
+  //* Cerrar InfoTooltip
   function handleCloseInfoTooltip() {
     const shouldRedirect = infoTooltip.redirectToSignin;
 
@@ -175,7 +171,7 @@ function App() {
     }
   }
 
-  // Dar o quitar "Me gusta"
+  //* Dar o quitar "Me gusta"
   const handleCardLike = async (card: CardData) => {
     try {
       const newCard = card.isLiked
@@ -192,7 +188,7 @@ function App() {
     }
   };
 
-  // Borrar tarjeta
+  //* Borrar tarjeta
   const handleCardDelete = async (card: CardData) => {
     try {
       await api.deleteCard(card._id);
@@ -207,7 +203,7 @@ function App() {
     }
   };
 
-  // Actualizar perfil
+  //* Actualizar perfil
   const handleUpdateUser = async (data: UserFormData) => {
     try {
       const updatedUser = await api.updateUserInfo(data);
@@ -219,7 +215,7 @@ function App() {
     }
   };
 
-  // Actualizar avatar
+  //* Actualizar avatar
   const handleUpdateAvatar = async (data: AvatarFormData) => {
     try {
       const updatedUser = await api.updateAvatar(data);
@@ -231,7 +227,7 @@ function App() {
     }
   };
 
-  // Agregar nuevo lugar
+  //* Agregar nuevo lugar
   const handleAddPlaceSubmit = async (data: CardFormData) => {
     try {
       const newCard = await api.addCard(data);
@@ -243,12 +239,12 @@ function App() {
     }
   };
 
-  // Abrir popup
+  //* Abrir popup
   function handleOpenPopup(popup: PopupConfig) {
     setPopup(popup);
   }
 
-  // Cerrar popup
+  //* Cerrar popup
   function handleClosePopup() {
     setPopup(null);
   }

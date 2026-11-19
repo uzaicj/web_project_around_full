@@ -18,7 +18,7 @@ export const errorHandler = (
 
   // Ocultamos el mensaje real de los errores 500 por seguridad
   const message =
-    statusCode === 500 ? "Ha ocurrido un error en el servidor" : err.message;
+    statusCode === 500 ? "An error occurred on the server" : err.message;
 
   res.status(statusCode).send({ message });
 };

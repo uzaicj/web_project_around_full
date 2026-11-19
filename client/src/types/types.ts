@@ -1,3 +1,4 @@
+
 export type PopupConfig = {
   title?: string;
   children: React.ReactNode;
@@ -25,10 +26,11 @@ export interface CardFormData {
 }
 
 export interface UserData {
+  _id: string;
+  email: string;
   name: string;
   about: string;
   avatar: string;
-  _id: string;
 }
 
 export interface UserFormData {

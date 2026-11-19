@@ -1,10 +1,19 @@
+
 import Card from "../models/card.js";
 import type { Request, Response } from "express";
 
-
 export const getCards = async (req: Request, res: Response) => {
-  const cards = await Card.find({});
   const userId = req.user?._id;
+
+  if (!userId) {
+    throw Object.assign(new Error("Unauthorized"), {
+      statusCode: 401,
+    });
+  }
+
+  const cards = await Card.find({ owner: userId }).sort({
+    createdAt: -1,
+  });
 
   const cardsWithIsLiked = cards.map((card) => ({
     ...card.toObject(),
@@ -14,44 +23,61 @@ export const getCards = async (req: Request, res: Response) => {
   res.send(cardsWithIsLiked);
 };
 
-
 export const likeCard = async (req: Request, res: Response) => {
-  const card = await Card.findByIdAndUpdate(
+  const card = await Card.findById(req.params.id);
+
+  if (!card) {
+    throw Object.assign(new Error("Card ID not found"), {
+      statusCode: 404,
+    });
+  }
+
+  if (card.owner.toString() !== req.user?._id) {
+    throw Object.assign(new Error("Forbidden"), {
+      statusCode: 403,
+    });
+  }
+
+  const updatedCard = await Card.findByIdAndUpdate(
     req.params.id,
     { $addToSet: { likes: req.user?._id } },
     { new: true },
   );
 
-  if (!card) {
-    throw Object.assign(new Error("No se encontró ninguna tarjeta con ese id"), {
-      statusCode: 404,
-    });
-  }
-
   const userId = req.user?._id;
+
   res.send({
-    ...card.toObject(),
-    isLiked: card.likes.some((id) => id.toString() === userId),
+    ...updatedCard!.toObject(),
+    isLiked: updatedCard!.likes.some((id) => id.toString() === userId),
   });
 };
 
-
 export const dislikeCard = async (req: Request, res: Response) => {
-  const card = await Card.findByIdAndUpdate(
-    req.params.id,
-    { $pull: { likes: req.user?._id } }, // elimina _id del array
-    { new: true },
-  );
+  const card = await Card.findById(req.params.id);
+
   if (!card) {
-    throw Object.assign(new Error("No se encontró ninguna tarjeta con ese id"), {
+    throw Object.assign(new Error("Card ID not found"), {
       statusCode: 404,
     });
   }
 
+  if (card.owner.toString() !== req.user?._id) {
+    throw Object.assign(new Error("Forbidden"), {
+      statusCode: 403,
+    });
+  }
+
+  const updatedCard = await Card.findByIdAndUpdate(
+    req.params.id,
+    { $pull: { likes: req.user?._id } },
+    { new: true },
+  );
+
   const userId = req.user?._id;
+
   res.send({
-    ...card.toObject(),
-    isLiked: card.likes.some((id) => id.toString() === userId),
+    ...updatedCard!.toObject(),
+    isLiked: updatedCard!.likes.some((id) => id.toString() === userId),
   });
 };
 
@@ -67,21 +93,29 @@ const createCard = async (req: Request, res: Response) => {
   await newCard.save();
 
   res.status(201).json({
-  ...newCard.toObject(),
-  isLiked: false,
-});
+    ...newCard.toObject(),
+    isLiked: false,
+  });
 };
 
 const deleteCard = async (req: Request, res: Response) => {
-  const data = await Card.findByIdAndDelete(req.params.id);
+  const card = await Card.findById(req.params.id);
 
-  if (!data) {
+  if (!card) {
     throw Object.assign(new Error("Card ID not found"), {
       statusCode: 404,
     });
   }
 
-  res.send(data);
+  if (card.owner.toString() !== req.user?._id) {
+    throw Object.assign(new Error("Forbidden"), {
+      statusCode: 403,
+    });
+  }
+
+  await Card.findByIdAndDelete(req.params.id);
+
+  res.send(card);
 };
 
 export { createCard, deleteCard };

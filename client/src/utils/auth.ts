@@ -1,5 +1,5 @@
 
-const BASE_URL = "https://se-register-api.en.tripleten-services.com/v1";
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
 
 interface AuthCredentials {
   email: string;
@@ -9,19 +9,19 @@ interface AuthCredentials {
 interface AuthUser {
   _id: string;
   email: string;
+  name: string;
+  about: string;
+  avatar: string;
 }
 
-interface RegisterResponse {
-  data: AuthUser;
-}
+interface RegisterResponse extends AuthUser {}
 
 interface LoginResponse {
   token: string;
+  user: AuthUser;
 }
 
-interface CheckTokenResponse {
-  data: AuthUser;
-}
+interface CheckTokenResponse extends AuthUser {}
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
   const response = await fetch(url, {
@@ -43,7 +43,7 @@ export function register({
   email,
   password,
 }: AuthCredentials): Promise<RegisterResponse> {
-  return request(`${BASE_URL}/signup`, {
+  return request(`${API_URL}/signup`, {
     method: "POST",
     body: JSON.stringify({ email, password }),
   });
@@ -53,14 +53,14 @@ export function authorize({
   email,
   password,
 }: AuthCredentials): Promise<LoginResponse> {
-  return request(`${BASE_URL}/signin`, {
+  return request(`${API_URL}/signin`, {
     method: "POST",
     body: JSON.stringify({ email, password }),
   });
 }
 
 export function checkToken(token: string): Promise<CheckTokenResponse> {
-  return request(`${BASE_URL}/users/me`, {
+  return request(`${API_URL}/users/me`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

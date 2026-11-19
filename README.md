@@ -1,124 +1,140 @@
-# Around The U.S.
+# Around The US
 
-A responsive web application where users can share photographs of places, create cards, interact with other users' content, and manage their personal profiles.
+Aplicación web full stack que permite a los usuarios compartir fotografías de diferentes lugares, crear tarjetas, editar su perfil y gestionar sus publicaciones.
 
-## Features
+El proyecto implementa un sistema de autenticación y autorización para proteger las rutas y operaciones que requieren un usuario registrado.
 
-### Authentication
-- User registration and login.
-- JWT-based authentication.
-- Protected routes for authenticated users.
-- Session persistence using localStorage.
-- Logout functionality.
+## Tecnologías utilizadas
 
-### User Profile
-- View user information and profile avatar.
-- Edit profile information.
-- Update profile avatar.
-
-### Cards
-- Display cards retrieved from the database.
-- Add new cards.
-- Like and unlike cards.
-- Delete your own cards.
-- Update the interface dynamically after user interactions.
-
-### User Interface
-- Responsive design for desktop and mobile devices.
-- Interactive popups and forms.
-- Registration and authentication feedback through InfoTooltip.
-
-## Technologies
-
-**Frontend**
+### Frontend
 - React
 - TypeScript
-- React Router
 - Vite
-- HTML5
-- CSS3
+- CSS
+- React Router
 
-**Backend**
+### Backend
 - Node.js
-- Express
+- Express.js
+- TypeScript
 - MongoDB
 - Mongoose
-
-**Authentication**
-- TripleTen Authentication API
 - JSON Web Tokens (JWT)
-- localStorage
+- bcrypt
 
-**Development Tools**
-- Git
-- GitHub
-- npm
+## Funcionalidades
 
-## Project Structure
+- Registro e inicio de sesión de usuarios.
+- Autenticación mediante JWT.
+- Protección de rutas privadas.
+- Visualización de tarjetas.
+- Creación y eliminación de tarjetas.
+- Edición de información del perfil.
+- Actualización del avatar.
+- Gestión de likes en las tarjetas.
+- Persistencia de información mediante MongoDB.
+
+## Estructura del proyecto
 
 web_project_around_full/
 ├── client/
-│   ├── public/
 │   ├── src/
-│   │   ├── blocks/
-│   │   ├── components/
-│   │   ├── contexts/
-│   │   ├── images/
-│   │   ├── utils/
-│   │   ├── main.tsx
-│   │   └── index.css
+│   ├── public/
+│   ├── .env.example
 │   └── package.json
 │
 ├── server/
-│   ├── controllers/
-│   ├── middlewares/
-│   ├── models/
-│   ├── routes/
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── middlewares/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   └── app.ts
+│   ├── .env.example
 │   └── package.json
 │
-├── package.json
+├── .gitignore
 └── README.md
 
+## Instalación
 
-## Installation
-
-Clone the repository:
-
-git clone https://github.com/uzaicj/web_project_around_full.git
+### 1. Clonar el repositorio
 
 
-Navigate to the project directory:
-
+git clone URL_DEL_REPOSITORIO
 cd web_project_around_full
 
 
-Install dependencies for both the client and server:
+### 2. Instalar dependencias
 
-npm run install:all
+Instalar las dependencias del frontend y backend:
 
-## Running the Application
 
-Start the backend server in one terminal:
+npm install
+npm install --prefix client
+npm install --prefix server
+
+
+### 3. Configurar variables de entorno
+
+Crear los archivos `.env` correspondientes tomando como referencia los archivos `.env.example`.
+
+**Server (.env)**
+
+PORT=3000
+MONGO_URL=tu_cadena_de_conexion
+JWT_SECRET=tu_clave_secreta
+CLIENT_ORIGIN=http://localhost:5173
+
+
+**Client (.env)**
+
+
+VITE_API_URL=http://localhost:3000
+
+
+
+### 4. Ejecutar el proyecto
+
+Desde la raíz del proyecto:
+
 
 npm run dev:server
 
 
-The backend API runs at:
+En otra terminal:
 
-`http://localhost:3001`
-
-Start the frontend in a separate terminal:
 
 npm run dev:client
 
-The frontend runs at:
+
+El frontend estará disponible en:
+
+`http://localhost:5173`
+
+El backend estará disponible en:
 
 `http://localhost:3000`
 
-Both applications must be running simultaneously.
+## Base de datos
 
+El proyecto utiliza MongoDB y Mongoose para almacenar la información.
 
+Las colecciones principales son:
 
-## Author
+- **users:** información y credenciales de los usuarios.
+- **cards:** información de las tarjetas compartidas.
 
-Developed as part of the TripleTen Full Stack Web Development program.
+La conexión se configura mediante la variable de entorno `MONGO_URL`.
+
+## Autenticación y seguridad
+
+- Contraseñas protegidas mediante bcrypt.
+- Autenticación basada en JWT.
+- Middleware para verificar tokens.
+- Protección de rutas privadas.
+- Variables sensibles almacenadas en archivos de entorno.
+
+## Autor
+
+Proyecto desarrollado como parte del programa de Desarrollo Web Full Stack de TripleTen.
